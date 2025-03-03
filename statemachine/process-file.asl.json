@@ -1,0 +1,33 @@
+{
+    "StartAt": "ProcessAllItems",
+    "States": {
+        "ProcessAllItems": {
+            "Type": "Map",
+            "InputPath": "$.detail",
+            "ItemsPath": "$.items",
+            "MaxConcurrency": 1,
+            "Iterator": {
+                "StartAt": "Call Process File Function",
+                "States": {
+                    "Call Process File Function": {
+                        "Type": "Task",
+                        "Resource": "{ProcessFileFunctionArn}",
+                        "Retry": [
+                            {
+                                "ErrorEquals": [
+                                    "TimeOut"
+                                ],
+                                "IntervalSeconds": 1,
+                                "BackoffRate": 2,
+                                "MaxAttempts": 3
+                            }
+                        ],
+                        "End": true
+                    }
+                }
+            },
+            "ResultPath": "$.detail.processedItems",
+            "End": true
+        }
+    }
+}
